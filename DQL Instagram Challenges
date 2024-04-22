@@ -1,0 +1,73 @@
+-- 1. Finding 5 oldest users
+SELECT * FROM users
+ORDER BY created_at
+LIMIT 5;
+
+--2.  What day of the week do most users register on?
+SELECT 
+    DAYNAME(created_at) AS day,
+    COUNT(*) AS total
+FROM users
+GROUP BY day
+ORDER BY total DESC
+LIMIT 2;
+
+--3. Identity inactive users
+SELECT username
+FROM users
+LEFT JOIN photos
+ON users.id = photos.user_id
+WHERE photos.id IS NULL;
+--4. Identity most popular photo (and user who created it)
+SELECT 
+username, photos.id,  photos.image_url, 
+ COUNT(*) AS total
+FROM photos
+INNER JOIN likes
+ON likes.photo_id = photos.id
+INNER JOIN users
+ON photos.user_id = users.id
+GROUP BY photos.id
+ORDER BY total DESC
+LIMIT 1;
+
+--5. The investors want to know HOW MANY TIMES DOES THE AVERAGE USER POST? Calculate THE AVG NUMBER OF PHOTOS PER USER
+-- Total number of posts (photos) divided by Total number of users
+select * from users
+select * from photos
+
+SELECT
+	 ((SELECT CAST(COUNT(photos.id) AS DECIMAL(10,2)) FROM photos) / (select CAST(COUNT(users.id) AS DECIMAL(10,2)) FROM users)) 
+     AS 'average number of photos per user'
+     
+--6. A brand wants to know which hashtags to use in a post. WHAT ARE THE TOP 5 MOST COMMONLY USED HASHTAGS?
+SELECT * FROM PHOTO_TAGS
+SELECT * FROM TAGS
+
+SELECT TAGS.TAG_NAME, COUNT(*) AS TOTAL FROM TAGS
+INNER JOIN PHOTO_TAGS ON TAGS.ID = PHOTO_TAGS.TAG_ID   
+GROUP BY TAGS.ID
+ORDER BY TOTAL DESC
+LIMIT 5 
+
+--7. We have a small problem with bots on our site. FIND USERS WHO HAVE LIKED EVERY SINGLE PHOTO ON THE SITE
+select users.username, likes.user_id, count(likes.photo_id) as total_number_of_likes from users
+inner join likes on users.id = likes.user_id
+group by likes.user_id
+having total_number_of_likes = (select count(*) from photos)
+
+--8. Select the 3 users with the highest IDs from the users table
+select * from users
+order by id desc
+limit 3
+
+--9. Show each username and the number of likes that they have created
+
+select count(likes.user_id) as number_of_likes, users.username from users
+inner join likes on users.id = likes.user_id
+group by users.username
+-- order by number_of_likes desc
+
+
+
+
