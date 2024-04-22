@@ -1,0 +1,102 @@
+-- Creating table USERS with ID column as a PRIMARY KEY constraint which will be referencing foreign keys columns in other tables
+
+CREATE TABLE users (
+	id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+)
+
+DESCRIBE users
+
+-- Creating table PHOTOS with ID column as PRIMARY KEY and USER_ID column as a FOREIGN KEY which references the ID column 
+-- PRIMARY KEY of the USERS table (ONE-TO-MANY RELATIONSHIP)
+
+CREATE TABLE photos (
+	id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+)
+
+-- Adding the FOREIGN KEY CONSTRAINT to the USER_ID column
+
+ALTER TABLE photos
+ADD FOREIGN KEY (user_id)
+REFERENCES users(ID)
+
+DESCRIBE photos
+
+-- Creating table COMMENTS which is going to rely on both USERS and PHOTOS tables, hence it will have 2 FOREIGN KEYS.
+-- The column USER_ID is the FOREIGN KEY referencing the PRIMARY KEY of the column ID in the USERS table
+-- The column PHOTO_ID is the FOREIGN KEY referencing the PRIMARY KEY of the column ID in the PHOTOS table
+
+CREATE TABLE comments (
+	id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    comment_text VARCHAR(255) NOT NULL,
+    user_id INTEGER NOT NULL,
+    photo_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+)
+
+-- Adding the FOREIGN KEY constraint to the USER_ID and PHOTO_ID columns
+ALTER TABLE comments
+ADD FOREIGN KEY (user_id)
+REFERENCES users(ID)
+
+ALTER TABLE comments
+ADD FOREIGN KEY (photo_id)
+REFERENCES photos(ID)
+
+DESCRIBE comments
+
+-- Creating table LIKES which is going to have 2 FOREIGN KEYS. The combination of these FOREIGN KEYS forms
+-- the PRIMARY KEY of the table (COMPOSITE KEY), so that we ensure that there is only one like per user. 
+-- This kind of table AKA JUNCTION table represents the MANY-TO-MANY RELATIONSHIP
+
+CREATE TABLE likes (
+	user_id INTEGER NOT NULL,
+    photo_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(ID),
+    FOREIGN KEY (photo_id) REFERENCES photos(ID),
+    PRIMARY KEY (user_id, photo_id) 
+)
+
+DESCRIBE likes
+
+-- Creating table FOLLOWS which is going to be another JUNCTION TABLE with 2 FOREIGN KEYS for FOLLOWER_ID and FOLLOWEE_ID
+-- columns and 1 PRIMARY KEY as the combination of the 2 FOREIGN KEYS which are both referenced to the PRIMARY KEY
+-- column ID of the USERS table. Imagining that I have a Instagram account, the followers are the users following me, 
+-- on the contrary the followees or following are the users that I follow
+
+CREATE TABLE Follows (
+    follower_id INTEGER NOT NULL,
+    followee_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (follower_id) REFERENCES users(ID),
+    FOREIGN KEY (followee_id) REFERENCES users(ID),
+    PRIMARY KEY (follower_id, followee_id) 
+)
+
+-- Creating the tables for HASHTAGS. One photo can have 10,20,50 hashtags
+
+CREATE TABLE tags (
+   id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    tag_name VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW()
+)
+
+CREATE TABLE photo_tags (
+    photo_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES photos(ID),
+    FOREIGN KEY (tag_id) REFERENCES tags(ID),
+    PRIMARY KEY(photo_id, tag_id)
+ )   
+
+
+
+
+
+    
+
